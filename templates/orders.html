@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Заказ №{{order_num}}{% endblock %}
+{% block sections %}
+
+{% endblock %}
+
+{% block body %}
+<h1 align="center">Заказ №{{order_num}}</h1><br>
+<div>
+    {% for msg in get_flashed_messages() %}
+    <h1 style="width:auto; font-size: 2.0rem; margin-top:30px; color: green" align="center"> {{msg}} </h1>
+    {% endfor %}
+</div>
+{% endblock %}
+
+      {% block products %}
+
+{% if groups %}
+{% for group in groups %}
+<div align="center">
+<!--</form>-->
+</div>
+<form  method="Post">
+        <div  align="center">
+        <input align="center" type="submit" name="saving" class="btn btn-success" value="Подтвердить" style="width: 200px">
+      <div class="row" style="border-width: 10px; border-style: double;">
+{% for i in group %}
+
+          <div class="col-md-4">
+
+            <div class="card mb-4 shadow-sm">
+            {% if 'image' in i.keys()%}
+            <p><img src={{i["image"]}} style="width:100px; margin-top: 10px"></p>
+            {% endif %}
+              <div class="card-body">
+              <p class="card-text">{{i["name"]}}</p><br>
+              <p class="card-text">Артикул - {{i["Артикул"]}}</p>
+              <p class="card-text">Объем - {{i["Объем"]}}</p>
+              <p class="card-text">Количество - {{i["quantity"]}}</p>
+              {% if 'price' in i.keys() %} Цена ₽
+                    <input type="text" name="{{i['link']+'price'}}"  class="form-control" value="{{i['price']}}" style="width: 130px; text-align: right" onkeydown="if(event.keyCode==13){return false;}" ><br>
+              {% endif %}
+
+</form>
+
+            <iframe name="myIFR" style="display: none"></iframe>
+              <div align="center">
+                  <div class="btn-group">
+                  <form target="myIFR" enctype="application/json" method="POST">
+                      {% if "not_in_stock" in i.keys() %}
+                  <input type="hidden" name="not_in_stock" value="{{i['link']}}">
+                  <input type="submit" name="Yes" class="btn btn-danger" value="Отменить" style="width: 150px; background-color: orange;" onclick="return ChangeBgColor(this);">
+                      {% else %}
+                  <input type="hidden" name="not_in_stock" value="{{i['link']}}">
+                  <input type="submit" name="Yes" class="btn btn-danger" value="Нет в наличии" style="width: 150px; background-color: red;" onclick="return ChangeBgColor(this);">
+                      {% endif %}
+
+                  </form>
+
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+             {% endfor %}
+      </div>
+        </div>
+          {% endfor %}
+
+{% endif %}
+
+<script>
+       function ChangeBgColor(Element) {
+        if(Element.style.backgroundColor === 'red'){
+            Element.style.backgroundColor = 'orange';
+            Element.value = 'Отменить';
+            return true;
+            }
+        else{
+             Element.style.backgroundColor = 'red';
+             Element.value = 'Нет в наличии';
+            }
+        }
+
+    </script>
+
+        {% endblock %}
