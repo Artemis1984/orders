@@ -7,6 +7,7 @@
 
 {% block body %}
 <h1 align="center">Заказ №{{order_num}}</h1><br>
+<h2 align="center">Итого - {{sum_}} ₽</h2><br>
 <div>
     {% for msg in get_flashed_messages() %}
     <h1 style="width:auto; font-size: 2.0rem; margin-top:30px; color: green" align="center"> {{msg}} </h1>

@@ -55,6 +55,7 @@ def main_page():
         orders = list(Orders_DB['orders'].find({'_id': order_num}))
         for i in orders[0]['order']:
             i['price'] = request.form[i['link']+'price']
+            i['price'] = float(i['price']) if '.' in i['price'] else int(i['price'])
 
         Orders_DB['orders'].delete_one({'_id': order_num})
         Orders_DB['orders'].update_one({'_id': order_num}, {'$set': orders[0]}, upsert=True)
@@ -62,7 +63,8 @@ def main_page():
     orders = list(Orders_DB['orders'].find({'_id': order_num}))
     orders = [orders[0]['order']]
     pprint(orders)
-    return render_template('orders.html', groups=orders, order_num=order_num)
+    sum_ = sum([i['price'] * i['quantity'] for i in orders[0]])
+    return render_template('orders.html', groups=orders, order_num=order_num, sum_=sum_)
 
 
 if __name__ == '__main__':
