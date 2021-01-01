@@ -8,6 +8,9 @@
 {% block body %}
 <h1 align="center">Заказ №{{order_num}}</h1><br>
 <h2 align="center">Итого - {{sum_}} ₽</h2><br>
+{% if confirmed %}
+<h2 align="center" style="color: green">Заказ подтвержден</h2><br>
+{% endif %}
 <div>
     {% for msg in get_flashed_messages() %}
     <h1 style="width:auto; font-size: 2.0rem; margin-top:30px; color: green" align="center"> {{msg}} </h1>
@@ -24,7 +27,11 @@
 </div>
 <form  method="Post">
         <div  align="center">
-        <input align="center" type="submit" name="saving" class="btn btn-success" value="Подтвердить" style="width: 200px">
+        {% if confirmed %}
+        <input align="center" type="submit" name="saving" class="btn btn-success" value="Отменить" style="width: 200px; background-color: orange" onclick="ChangeSaveButton(this);">
+        {% else %}
+        <input align="center" type="submit" name="saving" class="btn btn-success" value="Подтвердить" style="width: 200px; background-color: green" onclick="ChangeSaveButton(this);">
+        {% endif %}
       <div class="row" style="border-width: 10px; border-style: double;">
 {% for i in group %}
 
@@ -101,6 +108,18 @@
         else{
              Element.style.backgroundColor = 'red';
              Element.value = 'Нет в наличии';
+            }
+        }
+
+        function ChangeSaveButton(Element) {
+        if(Element.style.backgroundColor === 'green'){
+            Element.style.backgroundColor = 'orange';
+            Element.value = 'Отменить';
+            return true;
+            }
+        else{
+             Element.style.backgroundColor = 'green';
+             Element.value = 'Подтвердить';
             }
         }
 
