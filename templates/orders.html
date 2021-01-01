@@ -71,6 +71,26 @@
 
 {% endif %}
 
+<form method="Post">
+    <input type="text" name="comment"  class="form-control" placeholder="Введите сообщение" style="margin-top:50px"><br>
+<!--    <textarea style="margin-top: 50px; height: 40px" placeholder="Введите сообщение" name="comments" cols="115" rows="1" class="maxWidth"></textarea>-->
+    </form>
+
+{% for comment in comments %}
+
+    {% for key, value in comment.items() %}
+        {% if key == my_ip %}
+            <div align="right">
+                <div style="display: inline-block; text-align: left; max-width: 700px; min-width: 100px; margin-top: 10px; background: #bbf7b2; border-radius: 5px; padding: 10px">{{value}}</div>
+            </div>
+        {% else %}
+            <div align="left">
+                <div style="display: inline-block; text-align: left; max-width: 700px; min-width: 100px; margin-top: 10px; background: #d1d6d0; border-radius: 5px; padding: 10px">{{value}}</div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
 <script>
        function ChangeBgColor(Element) {
         if(Element.style.backgroundColor === 'red'){

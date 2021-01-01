@@ -34,10 +34,32 @@ orders = [order]
 
 @app.route('/', methods=['GET', 'POST'])
 def main_page():
+    print('Запрос', request.args)
     ip_address = request.remote_addr.replace('.', '')
     # Orders_DB['orders'].delete_many({})
     # Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'order': order}}, upsert=True)
-    # pprint(list(Orders_DB['orders'].find({'_id': order_num})))
+
+    if 'comment' in request.form:
+        if request.form['comment']:
+            item = list(Orders_DB['orders'].find({'_id': order_num}, {'comments': 1}))
+            # print('UP', comments)
+            if 'comments' in item[0].keys():
+                comments = item[0]['comments']
+                # comments.append(request.form['comment'])
+                comments.append({ip_address: request.form['comment']})
+            else:
+                comments = []
+                # comments.append(request.form['comment'])
+                comments.append({ip_address: request.form['comment']})
+            Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'comments': comments}})
+        # # if item:
+        # if comments:
+        #     comments = comments[0]
+        #     comments.append(request.form['comment'])
+        #     Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'comments': comments}})
+        # else:
+        #     # comments.append(request.form['comment'])
+
     if 'not_in_stock' in request.form:
         found = list(Orders_DB['orders'].find({'_id': order_num}))
         if found:
@@ -62,9 +84,17 @@ def main_page():
 
     orders = list(Orders_DB['orders'].find({'_id': order_num}))
     orders = [orders[0]['order']]
-    pprint(orders)
-    sum_ = sum([i['price'] * i['quantity'] for i in orders[0]])
-    return render_template('orders.html', groups=orders, order_num=order_num, sum_=sum_)
+    sum_ = sum([i['price'] * i['quantity'] for i in orders[0] if not ('not_in_stock' in i.keys())])
+    # pprint(list(Orders_DB['orders'].find({'_id': order_num})))
+
+    items = list(Orders_DB['orders'].find({'_id': order_num}, {'comments': 1}))
+    # print('down', items)
+    comments = []
+    if 'comments' in items[0].keys():
+        comments = items[0]['comments']
+        # print('downer', comments)
+
+    return render_template('orders.html', groups=orders, order_num=order_num, sum_=sum_, comments=comments[::-1], my_ip=ip_address)
 
 
 if __name__ == '__main__':
