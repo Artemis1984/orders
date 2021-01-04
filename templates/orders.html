@@ -8,6 +8,7 @@
 {% block body %}
 <h1 align="center">Заказ №{{order_num}}</h1><br>
 <h2 align="center">Итого - {{sum_}} ₽</h2><br>
+<h2 align="center" style="color: #4f0732">{{shop}}</h2><br>
 {% if confirmed %}
 <h2 align="center" style="color: green">Заказ подтвержден</h2><br>
 {% endif %}
@@ -46,6 +47,7 @@
               <p class="card-text">Артикул - {{i["Артикул"]}}</p>
               <p class="card-text">Объем - {{i["Объем"]}}</p>
               <p class="card-text">Количество - {{i["quantity"]}}</p>
+<!--              <p class="card-text">Категория - {{i["type"]}}</p>-->
               {% if 'price' in i.keys() %} Цена ₽
                     <input type="text" name="{{i['link']+'price'}}"  class="form-control" value="{{i['price']}}" style="width: 130px; text-align: right" onkeydown="if(event.keyCode==13){return false;}" ><br>
               {% endif %}
