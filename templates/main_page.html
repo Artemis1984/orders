@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Заказ №{{order_num}}{% endblock %}
+{% block sections %}
+
+{% endblock %}
+
+{% block body %}
+<h1 align="center">Заказы</h1><br>
+{% endblock %}
+
+      {% block products %}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<table class="table">
+  <thead style="border-style: double">
+    <tr>
+      <th><a class="nav-link">Заказ №</a></th>
+      <th><a class="nav-link">Магазин</a></th>
+      <th><a class="nav-link">Сумма</a></th>
+      <th><a class="nav-link">Статус</a></th>
+      <th><a class="nav-link">Ссылка</a></th>
+      <th><a class="nav-link">Редактировать</a></th>
+    </tr>
+  </thead>
+  <tbody>
+
+  {% for order in orders %}
+    <tr>
+      <th scope="row"><a class="nav-link">{{order["_id"]}}</a></th>
+        <td><a class="nav-link">{{order["order_shop"]}}</a></td>
+      <td><a class="nav-link">{{order["sum_"]}} ₽</a></td>
+      <td><a class="nav-link">{{order["status"]}}</a></td>
+      <td><a target="_blank" style="cursor: pointer; text-decoration: underline; color: black" href="{{order['link']}}" class="nav-link">Перейти</a></td>
+      <td>
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" style="cursor: pointer; color: black">Изменить магазин</a>
+          <ul class="dropdown-menu">
+            {% for sum in order['sums'] %}
+              <form enctype="application/json" method="POST">
+                <input type="hidden" name="change_shop" value="{{sum}}">
+                <input type="hidden" name="order" value="{{order['_id']}}">
+                <li><input name="yes" type="submit" class="dropdown-item" value="{{sum}} - {{order['sums'][sum]}} ₽"></li>
+              </form>
+            {% endfor %}
+          </ul>
+      </td>
+    </tr>
+  {% endfor %}
+<!--    <tr>-->
+<!--      <th scope="row"><a class="nav-link">1875624</a></th>-->
+<!--        <td><a class="nav-link">Winestreet</a></td>-->
+<!--      <td><a class="nav-link">7650 ₽</a></td>-->
+<!--      <td><a class="nav-link">Ожидает</a></td>-->
+<!--      <td><a style="cursor: pointer; text-decoration: underline;" class="nav-link">Перейти</a></td>-->
+<!--      <td>-->
+<!--        <a class="nav-link dropdown-toggle" data-toggle="dropdown" style="cursor: pointer; color: black">Изменить продавца</a>-->
+<!--          <ul class="dropdown-menu">-->
+<!--            <li><a class="dropdown-item" href="#">SubPage 1</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">SubPage 2</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">SubPage 3</a></li>-->
+<!--          </ul>-->
+<!--      </td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--      <th scope="row"><a class="nav-link">1875624</a></th>-->
+<!--        <td><a class="nav-link">Decanter</a></td>-->
+<!--      <td><a class="nav-link">9800 ₽</a></td>-->
+<!--      <td><a class="nav-link">Ожидает</a></td>-->
+<!--      <td><a style="cursor: pointer; text-decoration: underline;" class="nav-link">Перейти</a></td>-->
+<!--      <td>-->
+<!--        <a class="nav-link dropdown-toggle" data-toggle="dropdown" style="cursor: pointer; color: black">Изменить продавца</a>-->
+<!--          <ul class="dropdown-menu">-->
+<!--            <li><a class="dropdown-item" href="#">SubPage 1</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">SubPage 2</a></li>-->
+<!--            <li><a class="dropdown-item" href="#">SubPage 3</a></li>-->
+<!--          </ul>-->
+<!--      </td>-->
+<!--    </tr>-->
+  </tbody>
+</table>
+
+{% if groups %}
+
+{% for group in groups %}
+
+
+{% for i in group %}
+
+
+             {% endfor %}
+
+          {% endfor %}
+
+{% endif %}
+
+<script>
+
+       function ChangeBgColor(Element) {
+        if(Element.style.backgroundColor === 'red'){
+            Element.style.backgroundColor = 'orange';
+            Element.value = 'Отменить';
+            return true;
+            }
+        else{
+             Element.style.backgroundColor = 'red';
+             Element.value = 'Нет в наличии';
+            }
+        }
+
+        function ChangeSaveButton(Element) {
+        if(Element.style.backgroundColor === 'green'){
+            Element.style.backgroundColor = 'orange';
+            Element.value = 'Отменить';
+            return true;
+            }
+        else{
+             Element.style.backgroundColor = 'green';
+             Element.value = 'Подтвердить';
+            }
+        }
+
+
+</script>
+
+{% endblock %}
