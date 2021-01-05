@@ -4,7 +4,10 @@ from pprint import pprint
 from hashlib import sha1
 from create_groups import read_file
 from create_groups import take_other_groups
+import os
 
+
+os.popen('mongod --dbpath /Users/artak/data/db')
 
 client = MongoClient('localhost', 27017)
 Orders_DB = client.Orders_DB
@@ -31,47 +34,70 @@ app.config['SECRET_KEY'] = '12091988BernardoProvencanoToto'
 # ]
 
 
-# print(order)
-
 # order_num = '1872658'
 
 @app.route('/', methods=['GET', 'POST'])
 def main_page():
-    if 'change_shop' in request.form:
-        # print(request.form['change_shop'])
-        # print(request.form['order'])
-        Orders_DB['orders'].update_one({'_id': request.form['order']}, {'$set': {'active': request.form['change_shop']}}, upsert=True)
-    # order = read_file('order.json')
-    # print(order)
-    order = list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))
-    order_num = order[0]['order_num']
-    shop = order[0]['active']
-    # order = order[0][order[0]['active']]
-    order = order[0][shop]['order']
 
-    sum_ = sum([i['price'] * i['quantity'] for i in order])
+    if 'change_shop' in request.form:
+        Orders_DB['orders'].update_one({'_id': request.form['order']}, {'$set': {'active': request.form['change_shop']}}, upsert=True)
+
+    orders = read_file('orders.json')
+    for i in orders:
+        order = take_other_groups([i])
+        if not list(Orders_DB['orders'].find({'_id': order['order_num']})):
+            Orders_DB['orders'].update_one({'_id': order['order_num']}, {'$set': order}, upsert=True)
 
     shops = ['Alcomarket', 'Amwine', 'Decanter', 'Lwine', 'Winestreet', 'Winestyle']
+    orders = list(Orders_DB['orders'].find())
 
-    sums = {}
-    if not list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']})):
-        Orders_DB['orders'].update_one({'_id': take_other_groups()['order_num']}, {'$set': take_other_groups()}, upsert=True)
-    else:
-        for i in list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))[0]:
+    order_list = []
+    for item in orders:
+        order_num = item['order_num']
+        shop = item['active']
+        order = item[shop]['order']
+        sum_ = sum([i['price'] * i['quantity'] for i in order])
+        sums = {}
+        for i in list(Orders_DB['orders'].find({'_id': order_num}))[0]:
             if i in shops:
-                if i != list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))[0]['active']:
+                if i != list(Orders_DB['orders'].find({'_id': order_num}))[0]['active']:
                     group = list(Orders_DB['orders'].find({'_id': order_num}, {i: 1}))[0]
                     sums[i] = sum([k['price'] * k['quantity'] for k in group[i]['order']])
 
-    Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'sums': sums}}, upsert=True)
+        Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'sums': sums}}, upsert=True)
+
+        new_order = dict()
+        new_order['_id'] = order_num
+        new_order['link'] = 'http://127.0.0.1:5000/order/' + order_num
+        new_order['sum_'] = sum_
+        new_order['status'] = 'Ожидает'
+        new_order['order_shop'] = shop
+        new_order['sums'] = sums
+
+        order_list.append(new_order)
+
+    # order = {'_id': order_num, 'link': 'http://127.0.0.1:5000/order/' + order_num, 'sum_': sum_, 'status': 'Ожидает', 'order_shop': shop, 'sums': sums}
+    # order = list(Orders_DB['orders'].find({'_id': order_num}))
+    # order_num = order[0]['order_num']
+    # shop = order[0]['active']
+    # # order = order[0][order[0]['active']]
+    # order = order[0][shop]['order']
+    # sum_ = sum([i['price'] * i['quantity'] for i in order])
+
+    # if not list(Orders_DB['orders'].find({'_id': order_num})):
+    #     Orders_DB['orders'].update_one({'_id': order_num}, {'$set': order}, upsert=True)
+    # else:
+    #     for i in list(Orders_DB['orders'].find({'_id': order_num}))[0]:
+    #         if i in shops:
+    #             if i != list(Orders_DB['orders'].find({'_id': order_num}))[0]['active']:
+    #                 group = list(Orders_DB['orders'].find({'_id': order_num}, {i: 1}))[0]
+    #                 sums[i] = sum([k['price'] * k['quantity'] for k in group[i]['order']])
+    # Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'sums': sums}}, upsert=True)
+
     # pprint(list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']})))
-    sums = list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))[0]['sums']
-    order = {'_id': order_num, 'link': 'http://127.0.0.1:5000/order/' + order_num, 'sum_': sum_, 'status': 'Ожидает', 'order_shop': shop, 'sums': sums}
+    # sums = list(Orders_DB['orders'].find({'_id': order_num}))[0]['sums']
 
-
-    return render_template('main_page.html', orders=[order])
-
-# <!--                <li><a class="dropdown-item">{{sum}} - {{order['sums'][sum]}} ₽</a></li>-->
+    return render_template('main_page.html', orders=order_list)
 
 
 @app.route('/order/<order_num>', methods=['GET', 'POST'])

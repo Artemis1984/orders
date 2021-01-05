@@ -51,13 +51,11 @@ def write_file(file_name, data):
 # ]
 
 # Нужно обговорить в каком формате я буду получать заказ
-def take_other_groups():
-    order = read_file('order.json')
+def take_other_groups(order):
 
+    # order = read_file('order.json')
     order_num = order[0]['order_num']
     order = order[0][order[0]['active']]
-
-    # print(order[0])
 
     champagne = read_file('champagne.json')
     whiskey = read_file('whiskey.json')
@@ -65,9 +63,7 @@ def take_other_groups():
     cognac = read_file('cognac.json')
 
     cats = {'Виски': whiskey, 'Шампанское и игристое вино': champagne, 'Водка': vodka, 'Коньяк': cognac}
-
     other_groups = []
-
     sections = set([i['section'] for i in order])
 
     for item in order:
@@ -77,7 +73,6 @@ def take_other_groups():
             other_groups.append(k)
 
     keyfunc = lambda x: x['spider']
-
     grouped_shops = list(set([i[0] for i in groupby(other_groups, key=keyfunc)]))
 
     new_groups = {}
@@ -88,7 +83,6 @@ def take_other_groups():
         sect = len(set([r['section'] for r in found]))
         if sect == len(sections):
             new_groups[i] = found
-
 
     updated_groups = {}
     for i in new_groups:
@@ -109,7 +103,6 @@ def take_other_groups():
             new_dict['section'] = section
             new_dict['spider'] = j['spider']
             updated_groups[i].append(new_dict)
-
 
     for i in updated_groups:
         products = [k['product_id'] for k in updated_groups[i]]
@@ -142,14 +135,13 @@ def take_other_groups():
     # pprint(updated_groups)
 
     if len(set([i['spider'] for i in order])) == 1:
-        # print('in it')
         updated_groups[order[0]['spider']] = {'order': order, 'confirmed': False}
+        updated_groups['active'] = order[0]['spider']
         # updated_groups['confirmed'] = dict()
         # for i in updated_groups.keys():
         #     updated_groups['confirmed'][i] = False
         # print(order[0]['spider'])
         # updated_groups['confirmed'].pop('confirmed')
-        updated_groups['active'] = order[0]['spider']
 
     # pprint([i for i in updated_groups.keys()])
 
@@ -160,10 +152,6 @@ def take_other_groups():
             updated_groups[i] = {'order': updated_groups[i], 'confirmed': False}
 
     return updated_groups
-
-
-# pprint(take_other_groups())
-
 
 
 # [
@@ -201,6 +189,3 @@ def take_other_groups():
 #     "spider": "Winestreet"
 #   }
 # ]
-
-def test():
-    pass
