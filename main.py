@@ -37,19 +37,41 @@ app.config['SECRET_KEY'] = '12091988BernardoProvencanoToto'
 
 @app.route('/', methods=['GET', 'POST'])
 def main_page():
-    order = read_file('order.json')
+    if 'change_shop' in request.form:
+        # print(request.form['change_shop'])
+        # print(request.form['order'])
+        Orders_DB['orders'].update_one({'_id': request.form['order']}, {'$set': {'active': request.form['change_shop']}}, upsert=True)
+    # order = read_file('order.json')
+    # print(order)
+    order = list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))
     order_num = order[0]['order_num']
     shop = order[0]['active']
-    order = order[0][order[0]['active']]
+    # order = order[0][order[0]['active']]
+    order = order[0][shop]['order']
+
     sum_ = sum([i['price'] * i['quantity'] for i in order])
 
-    order = {'_id': order_num, 'link': 'http://127.0.0.1:5000/order/' + order_num, 'sum_': sum_,
-             'status': 'Ожидает', 'order_shop': shop}
+    shops = ['Alcomarket', 'Amwine', 'Decanter', 'Lwine', 'Winestreet', 'Winestyle']
 
-    Orders_DB['orders'].update_one({'_id': take_other_groups()['order_num']}, {'$set': take_other_groups()}, upsert=True)
+    sums = {}
+    if not list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']})):
+        Orders_DB['orders'].update_one({'_id': take_other_groups()['order_num']}, {'$set': take_other_groups()}, upsert=True)
+    else:
+        for i in list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))[0]:
+            if i in shops:
+                if i != list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))[0]['active']:
+                    group = list(Orders_DB['orders'].find({'_id': order_num}, {i: 1}))[0]
+                    sums[i] = sum([k['price'] * k['quantity'] for k in group[i]['order']])
+
+    Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'sums': sums}}, upsert=True)
     # pprint(list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']})))
-    # print('from DB')
+    sums = list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']}))[0]['sums']
+    order = {'_id': order_num, 'link': 'http://127.0.0.1:5000/order/' + order_num, 'sum_': sum_, 'status': 'Ожидает', 'order_shop': shop, 'sums': sums}
+
+
     return render_template('main_page.html', orders=[order])
+
+# <!--                <li><a class="dropdown-item">{{sum}} - {{order['sums'][sum]}} ₽</a></li>-->
 
 
 @app.route('/order/<order_num>', methods=['GET', 'POST'])
