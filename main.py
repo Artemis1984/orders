@@ -15,29 +15,11 @@ Orders_DB = client.Orders_DB
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '12091988BernardoProvencanoToto'
 
-# order = [{'name': 'Шампанское Moet & Chandon, Brut "Imperial", gift box',
-#          'Артикул': 'в2752',
-#          'image': 'https://s.wine.style/images_gen/275/2752/0_0_prod_desktop.jpg',
-#          'link': 'https://winestyle.ru/products/Moet-Chandon-Brut-Imperial-in-gift-box.html',
-#          'Объем': 0.75,
-#          'quantity': 2,
-#          'type': 'Шампанское',
-#          'price': 3986},
-#          {'name': 'Виски "Macallan" Double Cask 12 Years Old, gift box, 0.7 л',
-#          'Артикул': 'в71280',
-#          'image': 'https://s.wine.style/images_gen/712/71280/0_0_prod_desktop.jpg',
-#          'link': 'https://winestyle.ru/products/Macallan-Double-Cask-12-Years-Old-gift-box.html',
-#          'Объем': 0.7,
-#          'quantity': 3,
-#          'type': 'Виски',
-#          'price': 4576}
-# ]
-
-
-# order_num = '1872658'
 
 @app.route('/', methods=['GET', 'POST'])
 def main_page():
+
+    # Orders_DB['orders'].delete_many({})
 
     if 'change_shop' in request.form:
         Orders_DB['orders'].update_one({'_id': request.form['order']}, {'$set': {'active': request.form['change_shop']}}, upsert=True)
@@ -70,32 +52,16 @@ def main_page():
         new_order['_id'] = order_num
         new_order['link'] = 'http://127.0.0.1:5000/order/' + order_num
         new_order['sum_'] = sum_
-        new_order['status'] = 'Ожидает'
         new_order['order_shop'] = shop
         new_order['sums'] = sums
+        if item[item['active']]['confirmed'] and not [n for n in item[item['active']]['order'] if 'not_in_stock' in n.keys()]:
+            new_order['status'] = 'Подтвержден'
+        elif item[item['active']]['confirmed'] and [n for n in item[item['active']]['order'] if 'not_in_stock' in n.keys()]:
+            new_order['status'] = 'Не Подтвержден'
+        elif not item[item['active']]['confirmed']:
+            new_order['status'] = 'Ожидает'
 
         order_list.append(new_order)
-
-    # order = {'_id': order_num, 'link': 'http://127.0.0.1:5000/order/' + order_num, 'sum_': sum_, 'status': 'Ожидает', 'order_shop': shop, 'sums': sums}
-    # order = list(Orders_DB['orders'].find({'_id': order_num}))
-    # order_num = order[0]['order_num']
-    # shop = order[0]['active']
-    # # order = order[0][order[0]['active']]
-    # order = order[0][shop]['order']
-    # sum_ = sum([i['price'] * i['quantity'] for i in order])
-
-    # if not list(Orders_DB['orders'].find({'_id': order_num})):
-    #     Orders_DB['orders'].update_one({'_id': order_num}, {'$set': order}, upsert=True)
-    # else:
-    #     for i in list(Orders_DB['orders'].find({'_id': order_num}))[0]:
-    #         if i in shops:
-    #             if i != list(Orders_DB['orders'].find({'_id': order_num}))[0]['active']:
-    #                 group = list(Orders_DB['orders'].find({'_id': order_num}, {i: 1}))[0]
-    #                 sums[i] = sum([k['price'] * k['quantity'] for k in group[i]['order']])
-    # Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {'sums': sums}}, upsert=True)
-
-    # pprint(list(Orders_DB['orders'].find({'_id': take_other_groups()['order_num']})))
-    # sums = list(Orders_DB['orders'].find({'_id': order_num}))[0]['sums']
 
     return render_template('main_page.html', orders=order_list)
 
@@ -133,29 +99,26 @@ def orders(order_num):
     if 'not_in_stock' in request.form:
         found = list(Orders_DB['orders'].find({'_id': order_num}))
         if found:
-            for j in found:
-                for i in j['order']:
-                    if i['link'] == request.form['not_in_stock']:
-                        if not ('not_in_stock' in i.keys()):
-                            i['not_in_stock'] = True
-                        else:
-                            i.pop('not_in_stock')
-                Orders_DB['orders'].delete_one({'_id': order_num})
-                Orders_DB['orders'].update_one({'_id': order_num}, {'$set': found[0]}, upsert=True)
-        # pprint(found)
+            for i in found[0][found[0]['active']]['order']:
+                if i['link'] == request.form['not_in_stock']:
+                    if not ('not_in_stock' in i.keys()):
+                        i['not_in_stock'] = True
+                    else:
+                        i.pop('not_in_stock')
+            Orders_DB['orders'].delete_one({'_id': order_num})
+            Orders_DB['orders'].update_one({'_id': order_num}, {'$set': found[0]}, upsert=True)
 
     if 'saving' in request.form:
         orders = list(Orders_DB['orders'].find({'_id': order_num}))
-        for i in orders[0]['order']:
+        pprint(orders)
+        for i in orders[0][orders[0]['active']]['order']:
             i['price'] = request.form[i['link']+'price']
             i['price'] = float(i['price']) if '.' in i['price'] else int(i['price'])
 
-        if orders[0]['confirmed']:
-                orders[0]['confirmed'] = False
-                confirmed = False
+        if orders[0][orders[0]['active']]['confirmed']:
+                orders[0][orders[0]['active']]['confirmed'] = False
         else:
-            orders[0]['confirmed'] = True
-            confirmed = True
+            orders[0][orders[0]['active']]['confirmed'] = True
 
         Orders_DB['orders'].delete_one({'_id': order_num})
         Orders_DB['orders'].update_one({'_id': order_num}, {'$set': orders[0]}, upsert=True)
@@ -176,7 +139,7 @@ def orders(order_num):
     if 'comments' in items[0][shop].keys():
         comments = items[0][shop]['comments']
 
-    pprint(list(Orders_DB['orders'].find({'_id': order_num})))
+    # pprint(list(Orders_DB['orders'].find({'_id': order_num})))
 
     return render_template('orders.html', groups=orders, order_num=order_num, sum_=sum_, comments=comments[::-1], my_ip=ip_address, confirmed=confirmed, shop=shop)
 
