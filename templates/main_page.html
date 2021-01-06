@@ -36,7 +36,7 @@
       <td><a class="nav-link">{{order["sum_"]}} ₽</a></td>
       {% if order["status"] == 'Подтвержден' %}
       <td><a style="color: green" class="nav-link">{{order["status"]}}</a></td>
-      {% elif order["status"] == 'Не Подтвержден' %}
+      {% elif order["status"] == 'Нет в наличии' %}
       <td><a style="color: red" class="nav-link">{{order["status"]}}</a></td>
       {% else %}
       <td><a style="color: black" class="nav-link">{{order["status"]}}</a></td>
@@ -56,52 +56,8 @@
       </td>
     </tr>
   {% endfor %}
-<!--    <tr>-->
-<!--      <th scope="row"><a class="nav-link">1875624</a></th>-->
-<!--        <td><a class="nav-link">Winestreet</a></td>-->
-<!--      <td><a class="nav-link">7650 ₽</a></td>-->
-<!--      <td><a class="nav-link">Ожидает</a></td>-->
-<!--      <td><a style="cursor: pointer; text-decoration: underline;" class="nav-link">Перейти</a></td>-->
-<!--      <td>-->
-<!--        <a class="nav-link dropdown-toggle" data-toggle="dropdown" style="cursor: pointer; color: black">Изменить продавца</a>-->
-<!--          <ul class="dropdown-menu">-->
-<!--            <li><a class="dropdown-item" href="#">SubPage 1</a></li>-->
-<!--            <li><a class="dropdown-item" href="#">SubPage 2</a></li>-->
-<!--            <li><a class="dropdown-item" href="#">SubPage 3</a></li>-->
-<!--          </ul>-->
-<!--      </td>-->
-<!--    </tr>-->
-<!--    <tr>-->
-<!--      <th scope="row"><a class="nav-link">1875624</a></th>-->
-<!--        <td><a class="nav-link">Decanter</a></td>-->
-<!--      <td><a class="nav-link">9800 ₽</a></td>-->
-<!--      <td><a class="nav-link">Ожидает</a></td>-->
-<!--      <td><a style="cursor: pointer; text-decoration: underline;" class="nav-link">Перейти</a></td>-->
-<!--      <td>-->
-<!--        <a class="nav-link dropdown-toggle" data-toggle="dropdown" style="cursor: pointer; color: black">Изменить продавца</a>-->
-<!--          <ul class="dropdown-menu">-->
-<!--            <li><a class="dropdown-item" href="#">SubPage 1</a></li>-->
-<!--            <li><a class="dropdown-item" href="#">SubPage 2</a></li>-->
-<!--            <li><a class="dropdown-item" href="#">SubPage 3</a></li>-->
-<!--          </ul>-->
-<!--      </td>-->
-<!--    </tr>-->
   </tbody>
 </table>
-
-{% if groups %}
-
-{% for group in groups %}
-
-
-{% for i in group %}
-
-
-             {% endfor %}
-
-          {% endfor %}
-
-{% endif %}
 
 <script>
 
