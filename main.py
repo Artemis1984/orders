@@ -50,9 +50,9 @@ def main_page():
 
         new_order = dict()
         new_order['_id'] = order_num
-        new_order['link'] = 'http://127.0.0.1:5000/order/' + order_num
         new_order['sum_'] = sum_
         new_order['order_shop'] = shop
+        new_order['link'] = 'http://127.0.0.1:5000/order/' + order_num + '/' + shop
         new_order['sums'] = sums
         if item[item['active']]['confirmed'] and not [n for n in item[item['active']]['order'] if 'not_in_stock' in n.keys()]:
             new_order['status'] = 'Подтвержден'
@@ -107,7 +107,8 @@ def orders(order_num, path):
         found = list(Orders_DB['orders'].find({'_id': order_num}))
         if found:
             # for i in found[0][found[0]['active']]['order']:
-            for i in found[0][found[0][path]]['order']:
+            # for i in found[0][found[0][path]]['order']:
+            for i in found[0][path]['order']:
                 if i['link'] == request.form['not_in_stock']:
                     if not ('not_in_stock' in i.keys()):
                         i['not_in_stock'] = True
@@ -120,17 +121,21 @@ def orders(order_num, path):
         orders = list(Orders_DB['orders'].find({'_id': order_num}))
         pprint(orders)
         # for i in orders[0][orders[0]['active']]['order']:
-        for i in orders[0][orders[0][path]]['order']:
+        # for i in orders[0][orders[0][path]]['order']:
+        for i in orders[0][path]['order']:
             i['price'] = request.form[i['link']+'price']
             i['price'] = float(i['price']) if '.' in i['price'] else int(i['price'])
 
         # if orders[0][orders[0]['active']]['confirmed']:
-        if orders[0][orders[0][path]]['confirmed']:
+        # if orders[0][orders[0][path]]['confirmed']:
+        if orders[0][path]['confirmed']:
                 # orders[0][orders[0]['active']]['confirmed'] = False
-                orders[0][orders[0][path]]['confirmed'] = False
+                # orders[0][orders[0][path]]['confirmed'] = False
+                orders[0][path]['confirmed'] = False
         else:
             # orders[0][orders[0]['active']]['confirmed'] = True
-            orders[0][orders[0][path]]['confirmed'] = True
+            # orders[0][orders[0][path]]['confirmed'] = True
+            orders[0][path]['confirmed'] = True
 
         Orders_DB['orders'].delete_one({'_id': order_num})
         Orders_DB['orders'].update_one({'_id': order_num}, {'$set': orders[0]}, upsert=True)
