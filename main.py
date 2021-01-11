@@ -70,6 +70,8 @@ def main_page():
 def orders(order_num, path):
 
     order = list(Orders_DB['orders'].find({'_id': order_num}))
+    if not order:
+        return render_template('no_orders.html')
     order_num = order[0]['order_num']
     order = order[0][path]
     # orders = [order]
