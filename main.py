@@ -68,14 +68,11 @@ def main_page():
 
 @app.route('/order/<string:order_num>/<path>', methods=['GET', 'POST'])
 def orders(order_num, path):
-    # return order_num + path
-    # order = read_file('order.json')
-    # pprint(list(Orders_DB['orders'].find()))
+
     order = list(Orders_DB['orders'].find({'_id': order_num}))
     order_num = order[0]['order_num']
-    # order = order[0][order[0]['active']]
     order = order[0][path]
-    orders = [order]
+    # orders = [order]
 
     ip_address = request.remote_addr.replace('.', '')
     # Orders_DB['orders'].delete_many({})
@@ -84,30 +81,21 @@ def orders(order_num, path):
 
     if 'comment' in request.form:
         # active_shop = list(Orders_DB['orders'].find({'_id': order_num}))[0]['active']
-        active_shop = list(Orders_DB['orders'].find({'_id': order_num}))[0][path]
+        # active_shop = list(Orders_DB['orders'].find({'_id': order_num}))[0][path]
         if request.form['comment']:
-            # item = list(Orders_DB['orders'].find({'_id': order_num}, {active_shop+'.comments': 1}))
             item = list(Orders_DB['orders'].find({'_id': order_num}, {path+'.comments': 1}))
-            # if 'comments' in item[0][active_shop].keys():
             if 'comments' in item[0][path].keys():
-                # comments = item[0][active_shop]['comments']
                 comments = item[0][path]['comments']
-                print('UP', comments)
-                # comments.append(request.form['comment'])
                 comments.append({ip_address: request.form['comment']})
             else:
                 comments = []
-                # comments.append(request.form['comment'])
                 comments.append({ip_address: request.form['comment']})
 
-            # Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {active_shop+'.comments': comments}})
-            Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {path+'.comments': comments}})
+            Orders_DB['orders'].update_one({'_id': order_num}, {'$set': {path+'.comments': comments}}, upsert=True)
 
     if 'not_in_stock' in request.form:
         found = list(Orders_DB['orders'].find({'_id': order_num}))
         if found:
-            # for i in found[0][found[0]['active']]['order']:
-            # for i in found[0][found[0][path]]['order']:
             for i in found[0][path]['order']:
                 if i['link'] == request.form['not_in_stock']:
                     if not ('not_in_stock' in i.keys()):
@@ -119,49 +107,27 @@ def orders(order_num, path):
 
     if 'saving' in request.form:
         orders = list(Orders_DB['orders'].find({'_id': order_num}))
-        pprint(orders)
-        # for i in orders[0][orders[0]['active']]['order']:
-        # for i in orders[0][orders[0][path]]['order']:
         for i in orders[0][path]['order']:
             i['price'] = request.form[i['link']+'price']
             i['price'] = float(i['price']) if '.' in i['price'] else int(i['price'])
 
-        # if orders[0][orders[0]['active']]['confirmed']:
-        # if orders[0][orders[0][path]]['confirmed']:
         if orders[0][path]['confirmed']:
-                # orders[0][orders[0]['active']]['confirmed'] = False
-                # orders[0][orders[0][path]]['confirmed'] = False
                 orders[0][path]['confirmed'] = False
         else:
-            # orders[0][orders[0]['active']]['confirmed'] = True
-            # orders[0][orders[0][path]]['confirmed'] = True
             orders[0][path]['confirmed'] = True
 
         Orders_DB['orders'].delete_one({'_id': order_num})
         Orders_DB['orders'].update_one({'_id': order_num}, {'$set': orders[0]}, upsert=True)
 
-    # pprint(list(Orders_DB['orders'].find({'_id': order_num})))
-
     orders = list(Orders_DB['orders'].find({'_id': order_num}))
-    # orders = [orders[0][orders[0]['active']]['order']]
     orders = [orders[0][path]['order']]
     sum_ = sum([i['price'] * i['quantity'] for i in orders[0] if not ('not_in_stock' in i.keys())])
-    # pprint(list(Orders_DB['orders'].find({'_id': order_num})))
 
     confirmed = list(Orders_DB['orders'].find({'_id': order_num}))[0]
-    # confirmed = confirmed[confirmed['active']]['confirmed']
     confirmed = confirmed[path]['confirmed']
-    # shop = list(Orders_DB['orders'].find({'_id': order_num}))[0]['active']
     shop = list(Orders_DB['orders'].find({'_id': order_num}))[0][path]
 
-    items = list(Orders_DB['orders'].find({'_id': order_num}))
-    comments = []
-    # if 'comments' in items[0][shop].keys():
-    if 'comments' in order.keys():
-        # comments = items[0][shop]['comments']
-        comments = shop['comments']
-
-    # pprint(list(Orders_DB['orders'].find({'_id': order_num})))
+    comments = shop['comments'] if 'comments' in shop.keys() else []
 
     return render_template('orders.html', groups=orders, order_num=order_num, sum_=sum_, comments=comments[::-1], my_ip=ip_address, confirmed=confirmed, shop=path)
 
