@@ -24,7 +24,6 @@
 {% if groups %}
 {% for group in groups %}
 <div align="center">
-<!--</form>-->
 </div>
 <form  method="Post">
         <div  align="center">
@@ -50,6 +49,9 @@
 <!--              <p class="card-text">Категория - {{i["type"]}}</p>-->
               {% if 'price' in i.keys() %} Цена ₽
                     <input type="text" name="{{i['link']+'price'}}"  class="form-control" value="{{i['price']}}" style="width: 130px; text-align: right" onkeydown="if(event.keyCode==13){return false;}" ><br>
+              {% endif %}
+              {% if shop == 'Mixed' %}
+                <p class="card-text">{{i["spider"]}}</p><br>
               {% endif %}
 
 </form>
@@ -81,10 +83,92 @@
 
 {% endif %}
 
+{% if other_drinks %}
+{% for group in other_drinks %}
+
+
+{% for k in group %}
+<br>
+<br>
+<h3 align="center">Ищем замену для - {{k}}</h3><br>
+      <div class="row" style="border-width: 10px; border-style: double;">
+{% if not group[k] %}
+
+        <div align="center" style="width:100%;">
+              <br>
+                <h3 style="">Создать карточку</h3><br>
+
+
+        <form enctype="application/json" method="Post">
+            <div class="col-md-4">
+
+            <div class="card mb-4 shadow-sm" style="width:300px;">
+
+                <div class="card-body" >
+
+                  <input type="text" name="{{k + 'name'}}" placeholder="Имя" class="form-control" onkeydown="if(event.keyCode==13){return false;}" ><br>
+                  <input type="text" name="{{k + 'price'}}" placeholder="Цена" class="form-control" onkeydown="if(event.keyCode==13){return false;}" ><br>
+                  <input type="text" name="{{k + 'spider'}}" placeholder="Магазин" class="form-control" onkeydown="if(event.keyCode==13){return false;}" ><br>
+                  <input type="text" name="{{k + 'link'}}" placeholder="Ссылка" class="form-control" onkeydown="if(event.keyCode==13){return false;}" >
+
+            </div>
+          </div>
+        </div>
+       </div>
+
+          {% endif %}
+{% for i in group[k] %}
+
+              <div class="col-md-4">
+
+            <div class="card mb-4 shadow-sm">
+            {% if 'image' in i.keys()%}
+                <div align="center">
+                    <p><img src={{i["image"]}} style="width:100px; margin-top: 10px"></p>
+                </div>
+            {% endif %}
+              <div class="card-body">
+              <p class="card-text">{{i["name"]}}</p><br>
+              {% if 'not_in_stock' in i.keys()%}
+                <p class="card-text" style="color: red">Нет в наличии</p>
+              {% endif %}
+              {% if 'features' in i.keys()%}
+                <p class="card-text">Объем - {{i["features"]["Объем"]}}</p>
+              {% endif %}
+              {% if 'price' in i.keys()%}
+                <p class="card-text">Цена - {{i["price"]}}</p><br>
+              {% endif %}
+              <p class="card-text">{{i["spider"]}}</p><br>
+              <div align="center">
+                  <div class="btn-group">
+                    <form target="myIFR" enctype="application/json" method="POST">
+                      <input type="hidden" name="index" value="{{i['link']}}">
+                      <input type="submit" name="Yes" class="btn btn-success" value="Заменить" style="width: 150px; background-color: green" onclick="return ChangeReplaceColor(this);">
+                    </form>
+                      <a href="{{i['link']}}" target="_blank" class="btn" style="color:green">Перейти</a>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+             {% endfor %}
+
+      </div>
+             {% endfor %}
+
+<form enctype="application/json" method="Post">
+<div align="center" style="margin-top: 30px;">
+    <input style="width:200px;" type="submit" name="saving_replace" class="btn btn-success" value="Сохранить">
+</div>
+</form>
+          {% endfor %}
+{% endif %}
+
 <form method="Post">
     <input type="text" name="comment"  class="form-control" placeholder="Введите сообщение" style="margin-top:50px"><br>
-<!--    <textarea style="margin-top: 50px; height: 40px" placeholder="Введите сообщение" name="comments" cols="115" rows="1" class="maxWidth"></textarea>-->
-    </form>
+</form>
+
+<iframe name="myIFR" style="display: none"></iframe>
 
 {% for comment in comments %}
 
@@ -102,6 +186,18 @@
 {% endfor %}
 
 <script>
+        function ChangeReplaceColor(Element) {
+        if(Element.style.backgroundColor === 'green'){
+            Element.style.backgroundColor = 'orange';
+            Element.value = 'Отменить';
+            return true;
+            }
+        else{
+             Element.style.backgroundColor = 'green';
+             Element.value = 'Заменить';
+            }
+        }
+
        function ChangeBgColor(Element) {
         if(Element.style.backgroundColor === 'red'){
             Element.style.backgroundColor = 'orange';
