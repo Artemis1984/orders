@@ -53,7 +53,7 @@ def take_other_groups(order):
         # sect = len(set([r['section'] for r in found]))
         # found_ids = len(set([i['product_id'] for i in found]))
         # if found_ids == len(order_ids):
-        pprint(found)
+        # pprint(found)
         for item in order:
             if not [k for k in found if k['product_id'] == item['product_id'] and (k['features']['Объем'] == item['Объем'])]:
                 break

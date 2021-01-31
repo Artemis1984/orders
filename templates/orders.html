@@ -8,13 +8,47 @@
 {% block body %}
 <h1 align="center">Заказ №{{order_num}}</h1><br>
 <h2 align="center">Итого - {{sum_}} ₽</h2><br>
+<h3 align="center">Заказчик - {{contacts['customer']}}</h3>
+<h3 align="center">Адрес - {{contacts['address']}}</h3>
+<h3 align="center">Телефон - {{contacts['phone']}}</h3><br>
+{% if shop == 'Winestyle' %}
+    <div>
+        <img style="width: 200px" src="https://s.wine.style/templates/default/StylesNew/images/logo.svg">
+    </div><br>
+{% elif shop == 'Alcomarket' %}
+    <div>
+        <img style="width: 200px" src="https://alcomarket.ru/local/templates/new_template/image/layout/logo.svg?v=3">
+    </div><br>
+{% elif shop == 'Amwine' %}
+    <div>
+        <img style="width: 200px" src="https://toplogos.ru/images/logo-aromatniy-mir.png">
+    </div><br>
+{% elif shop == 'Decanter' %}
+    <div>
+        <img style="width: 200px" src="https://static.decanter.ru/local/templates/main2018/images/inhtml/header-logo.svg">
+    </div><br>
+{% elif shop == 'Lwine' %}
+    <div>
+        <img style="width: 200px" src="https://l-wine.ru/local/templates/redesign/img/logo.svg">
+    </div><br>
+{% elif shop == 'Winestreet' %}
+    <div>
+        <img style="width: 200px; background: #592f75" src="https://static.winestreet.ru/css/images/winestreet_logo.png">
+    </div><br>
+{% else %}
 <h2 align="center" style="color: #4f0732">{{shop}}</h2><br>
+{% endif %}
+
+{% if not_in_stock_in_shop %}
+<h2 align="center" style="color: red">Нет в Наличии</h2><br>
+{% else %}
 {% if confirmed %}
 <h2 align="center" style="color: green">Заказ подтвержден</h2><br>
 {% endif %}
+{% endif %}
 <div>
     {% for msg in get_flashed_messages() %}
-    <h1 style="width:auto; font-size: 2.0rem; margin-top:30px; color: green" align="center"> {{msg}} </h1>
+        <h1 style="width:auto; font-size: 2.0rem; margin-top:30px; color: red" align="center"> {{msg}} </h1>
     {% endfor %}
 </div>
 {% endblock %}
@@ -35,15 +69,14 @@
       <div class="row" style="border-width: 10px; border-style: double;">
 {% for i in group %}
 
-          <div class="col-md-4">
+          <div class="col-md-4" style="margin-top: 20px">
 
             <div class="card mb-4 shadow-sm">
             {% if 'image' in i.keys()%}
-            <p><img src={{i["image"]}} style="width:100px; margin-top: 10px"></p>
+            <p><img src={{i["image"]}} style="height:200px; margin-top: 10px"></p>
             {% endif %}
               <div class="card-body">
               <p class="card-text">{{i["name"]}}</p><br>
-              <p class="card-text">Артикул - {{i["Артикул"]}}</p>
               <p class="card-text">Объем - {{i["Объем"]}}</p>
               <p class="card-text">Количество - {{i["quantity"]}}</p>
 <!--              <p class="card-text">Категория - {{i["type"]}}</p>-->
@@ -65,7 +98,7 @@
                   <input type="submit" name="Yes" class="btn btn-danger" value="Отменить" style="width: 150px; background-color: orange;" onclick="return ChangeBgColor(this);">
                       {% else %}
                   <input type="hidden" name="not_in_stock" value="{{i['link']}}">
-                  <input type="submit" name="Yes" class="btn btn-danger" value="Нет в наличии" style="width: 150px; background-color: red;" onclick="return ChangeBgColor(this);">
+                  <input type="submit" name="Yes" class="btn btn-secondary" value="Нет в наличии" style="width: 150px; background-color: grey;" onclick="return ChangeBgColor(this);">
                       {% endif %}
 
                       <a href="{{i['link']}}" target="_blank" class="btn" style="color:green">Перейти</a>
@@ -74,6 +107,10 @@
                   </div>
               </div>
             </div>
+            <form target="myIFR" enctype="application/json" method="Post">
+               <input type="hidden" name="delete_this" value="{{i['link']}}">
+               <input type="submit" class="btn btn-danger" value="Удалить" style="width: 100%; background-color: red" onclick="return ChangeDelButtonColor(this);">
+            </form>
           </div>
         </div>
              {% endfor %}
@@ -165,6 +202,13 @@
 {% endif %}
 
 <form method="Post">
+    <br>
+    <div align="center">
+        <input type="submit" name="check_in_stock" class="btn btn-secondary" value="Проверить заказ у поставщика" style="background-color: #227f94">
+    </div>
+</form>
+
+<form method="Post">
     <input type="text" name="comment"  class="form-control" placeholder="Введите сообщение" style="margin-top:50px"><br>
 </form>
 
@@ -199,6 +243,18 @@
         }
 
        function ChangeBgColor(Element) {
+        if(Element.style.backgroundColor === 'grey'){
+            Element.style.backgroundColor = 'orange';
+            Element.value = 'Отменить';
+            return true;
+            }
+        else{
+             Element.style.backgroundColor = 'grey';
+             Element.value = 'Нет в наличии';
+            }
+        }
+
+        function ChangeDelButtonColor(Element) {
         if(Element.style.backgroundColor === 'red'){
             Element.style.backgroundColor = 'orange';
             Element.value = 'Отменить';
@@ -206,7 +262,7 @@
             }
         else{
              Element.style.backgroundColor = 'red';
-             Element.value = 'Нет в наличии';
+             Element.value = 'Удалить';
             }
         }
 

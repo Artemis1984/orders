@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.79.0">
-    <title>Заказ 1872988</title>
+    <title>Заказ № {{order_num}}</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/album/">
 
@@ -49,7 +49,36 @@
 
 <main>
 <br>
-<h1 align="center">BONK</h1>
+<br>
+<!--<h1 align="center">BONK</h1>-->
+    {% if shop == 'Winestyle' %}
+    <div align="center">
+        <img style="width: 200px" src="https://s.wine.style/templates/default/StylesNew/images/logo.svg">
+    </div><br>
+{% elif shop == 'Alcomarket' %}
+    <div align="center">
+        <img style="width: 200px" src="https://alcomarket.ru/local/templates/new_template/image/layout/logo.svg?v=3">
+    </div><br>
+{% elif shop == 'Amwine' %}
+    <div align="center">
+        <img style="width: 200px" src="https://toplogos.ru/images/logo-aromatniy-mir.png">
+    </div><br>
+{% elif shop == 'Decanter' %}
+    <div align="center">
+        <img style="width: 200px" src="https://static.decanter.ru/local/templates/main2018/images/inhtml/header-logo.svg">
+    </div><br>
+{% elif shop == 'Lwine' %}
+    <div align="center">
+        <img style="width: 200px" src="https://l-wine.ru/local/templates/redesign/img/logo.svg">
+    </div><br>
+{% elif shop == 'Winestreet' %}
+    <div align="center">
+        <img style="width: 200px; background: #592f75" src="https://static.winestreet.ru/css/images/winestreet_logo.png">
+    </div><br>
+{% else %}
+<h2 align="center" style="color: #4f0732">{{shop}}</h2><br>
+{% endif %}
+
   <div class="album py-5 bg-light" style="margin-top: 50px;">
     <div class="container">
 
@@ -66,6 +95,7 @@
             <div class="card-body">
               <p class="card-text">{{i['name']}}</p>
               <p class="card-text">Объем - {{i['Объем']}}</p>
+              <p class="card-text">Количетво - {{i['quantity']}}</p>
               <p class="card-text">Цена - {{i['price']}}</p>
               <p class="card-text">{{i['spider']}}</p>
 <!--              <div class="d-flex justify-content-between align-items-center">-->
